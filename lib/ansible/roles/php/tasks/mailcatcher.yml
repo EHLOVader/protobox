@@ -1,6 +1,6 @@
 - name: mailcatcher | install dependencies
   apt: >
-    name={{ item }} 
+    name={{ item }}
     state=latest
     force=yes
   with_items:
@@ -19,18 +19,40 @@
 - name: mailcatcher | set facts
   set_fact: >
     mailcatcher_ip="--ip={{ php.mailcatcher.ip|default('0.0.0.0') }}"
-    mailcatcher_port="{{ '--smtp-port=' ~ php.mailcatcher.smtp_port if php.mailcatcher.smtp_port is defined else '' }}"
-    mailcatcher_http="{{ '--http-port=' ~ php.mailcatcher.http_port if php.mailcatcher.http_port is defined else '' }}"
+    mailcatcher_http_ip="--http-ip={{ php.mailcatcher.ip|default('0.0.0.0') }}"
+    mailcatcher_port="{{ '--smtp-port=' ~ php.mailcatcher.smtp_port if php.mailcatcher.smtp_port is defined else '1025' }}"
+    mailcatcher_http="{{ '--http-port=' ~ php.mailcatcher.http_port if php.mailcatcher.http_port is defined else '1080' }}"
     mailcatcher_no_quit=""
 
-# service not found:
-#- name: mailcatcher | start service
-#  service: > 
-#    name=mailcatcher
-#    state=started
-#    arguments="{{ mailcatcher_ip }} {{ mailcatcher_port }} {{ mailcatcher_http }} {{ mailcatcher_no_quit }}"
+- name: mailcatcher | build init.d script
+  template: >
+    src=mailcatcher.sh.j2
+    dest=/etc/init.d/mailcatcher
+
+- name: mailcatcher | fix permissions
+  file: >
+    path=/etc/init.d/mailcatcher
+    owner=root
+    group=root
+    mode=0755
+
+- name: mailcatcher | install service
+  command: >
+    update-rc.d mailcatcher defaults
+  ignore_errors: True
+
+# - name: mailcatcher | start service
+#   command: >
+#     /etc/init.d/mailcatcher.sh start
+#   ignore_errors: True
 
 - name: mailcatcher | start service
-  command: > 
-    mailcatcher {{ mailcatcher_ip }} {{ mailcatcher_port }} {{ mailcatcher_http }} {{ mailcatcher_no_quit }}
-  ignore_errors: True
+  service: >
+    name=mailcatcher
+    state=started
+    arguments="{{ mailcatcher_ip }} {{ mailcatcher_port }} {{ mailcatcher_http_ip }} {{ mailcatcher_http }} {{ mailcatcher_no_quit }}"
+
+# - name: mailcatcher | start service
+#   command: >
+#     mailcatcher {{ mailcatcher_ip }} {{ mailcatcher_port }} {{ mailcatcher_http }} {{ mailcatcher_no_quit }}
+#   ignore_errors: True

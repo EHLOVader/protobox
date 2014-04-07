@@ -2,7 +2,7 @@
 
 PID_FILE=/var/run/mailcatcher.pid
 NAME=mailcatcher
-PROG=/usr/bin/env catchmail
+PROG=/usr/bin/env mailcatcher
 USER=mailcatcher
 GROUP=mailcatcher
 
@@ -24,9 +24,10 @@ start() {
         --chuid $USER \
         -- \
         --foreground \
-        --http-ip=0.0.0.0 \
-        --http-port=1080 \
-        --smtp-port=1025
+        {{mailcatcher_ip}} \
+        {{mailcatcher_http_ip}}\
+        {{mailcatcher_http}} \
+        {{mailcatcher_port}}
     echo "."
     return $?
 }
