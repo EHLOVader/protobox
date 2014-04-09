@@ -122,13 +122,9 @@ def build_playbook(yaml, protobox_dir)
 
   #
   # Applications
+  #  TODO: Dyanmically loop through and check for files.
   #
   if !yaml['applications'].nil? and yaml['applications']['install'].to_i == 1
-
-    # App - repository
-    if !yaml['applications']['repository'].nil?
-      entries << { "role" => "repository", "dir" => "applications/repository", "when" => "applications.repository is defined" }
-    end
 
     # App - lemonstand
     if !yaml['applications']['lemonstand'].nil?
@@ -163,6 +159,11 @@ def build_playbook(yaml, protobox_dir)
     # App - pyrocms
     if !yaml['applications']['pyrocms'].nil?
       entries << { "role" => "pyrocms", "dir" => "applications/pyrocms", "when" => "applications.pyrocms is defined" }
+    end
+
+    # App - repository
+    if !yaml['applications']['repository'].nil?
+      entries << { "role" => "repository", "dir" => "applications/repository", "when" => "applications.repository is defined" }
     end
 
   end
