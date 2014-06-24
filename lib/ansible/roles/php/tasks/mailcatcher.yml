@@ -18,18 +18,19 @@
 - name: mailcatcher | set facts
   set_fact: >
     mailcatcher_ip="--ip={{ php.mailcatcher.ip|default('0.0.0.0') }}"
-    mailcatcher_port="{{ '--smtp-port=' ~ php.mailcatcher.smtp_port if php.mailcatcher.smtp_port is defined else '' }}"
-    mailcatcher_http="{{ '--http-port=' ~ php.mailcatcher.http_port if php.mailcatcher.http_port is defined else '' }}"
+    mailcatcher_smtp_port="{{ '--smtp-port=' ~ php.mailcatcher.smtp_port if php.mailcatcher.smtp_port is defined else '' }}"
+    mailcatcher_http_port="{{ '--http-port=' ~ php.mailcatcher.http_port if php.mailcatcher.http_port is defined else '' }}"
     mailcatcher_no_quit=""
 
-# service not found:
-#- name: mailcatcher | start service
-#  service: > 
-#    name=mailcatcher
-#    state=started
-#    arguments="{{ mailcatcher_ip }} {{ mailcatcher_port }} {{ mailcatcher_http }} {{ mailcatcher_no_quit }}"
+- name: mailcatcher | create startup script
+  template: src=mailcatcher.j2 dest=/etc/init.d/mailcatcher mode=0755
 
-- name: mailcatcher | start service
-  command: > 
-    mailcatcher {{ mailcatcher_ip }} {{ mailcatcher_port }} {{ mailcatcher_http }} {{ mailcatcher_no_quit }}
-  ignore_errors: True
+- name: mailcatcher | start on boot
+  command: update-rc.d mailcatcher defaults
+
+- name: mailcatcher | not already running 
+  command: pkill mailcatcher
+  ignore_errors: yes
+
+- name: mailcatcher | start it
+  command: /etc/init.d/mailcatcher
