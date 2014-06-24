@@ -35,6 +35,7 @@
 
 - name: mailcatcher | start it
   command: /etc/init.d/mailcatcher
+  ignore_errors: yes
 
 - name: mailcatcher | set php ini
   template: >
