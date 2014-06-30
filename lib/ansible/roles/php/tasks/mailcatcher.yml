@@ -10,7 +10,7 @@
   shell: \curl -L https://get.rvm.io | bash -s stable --ruby
 
 - name: mailcatcher | install mailcatcher
-  shell: /usr/local/rvm/bin/rvm default@mailcatcher --create do gem install mailcatcher
+  shell: /usr/local/rvm/bin/rvm default@mailcatcher --create do gem install mailcatcher --no-rdoc --no-ri
 
 - name: mailcatcher | install wrapper
   shell: /usr/local/rvm/bin/rvm wrapper default@mailcatcher --no-prefix mailcatcher catchmail
